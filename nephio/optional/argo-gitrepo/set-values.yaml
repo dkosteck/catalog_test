@@ -71,20 +71,26 @@ source: |-
           elif volume["name"] == "template-vol":
             r["spec"]["template"]["spec"]["volumes"][i]["configMap"]["name"] = clusterName + "-repo"
     for r in resources:
-      if krmfn.match_gvk(r, "rbac.authorization.k8s.io/v1", "Role") and "source-secret-reader-role" in r["metadata"]["name"]:
+      if krmfn.match_gvk(r, "rbac.authorization.k8s.io/v1", "ClusterRole") and "secret-manager" in r["metadata"]["name"]:
         print("source-rbac")
         print(clusterName)
-        r["metadata"]["name"] = clusterName + "-source-secret-reader-role"
+        r["metadata"]["name"] = clusterName + "-secret-manager"
         rules = r["rules"]
         for i, rule in enumerate(rules):
-          if "secrets" in rule["resources"]:
+          if "secrets" in rule["resources"] and "resourceNames" in rule:
             r["rules"][i]["resourceNames"] = [clusterName + "-kubeconfig", clusterName + "-access-token-porch"]
     for r in resources:
-      if krmfn.match_gvk(r, "rbac.authorization.k8s.io/v1", "RoleBinding") and "source-secret-reader-binding" in r["metadata"]["name"]:
+      if krmfn.match_gvk(r, "rbac.authorization.k8s.io/v1", "RoleBinding") and "secret-manager-binding-default" in r["metadata"]["name"]:
         print("source-binding")
         print(clusterName)
-        r["metadata"]["name"] = clusterName + "-source-secret-reader-binding"
-        r["roleRef"]["name"] = clusterName + "-source-secret-reader-role"
+        r["metadata"]["name"] = clusterName + "-secret-manager-binding-default"
+        r["roleRef"]["name"] = clusterName + "-secret-manager"
+    for r in resources:
+      if krmfn.match_gvk(r, "rbac.authorization.k8s.io/v1", "RoleBinding") and "secret-manager-binding-argocd" in r["metadata"]["name"]:
+        print("argo-binding")
+        print(clusterName)
+        r["metadata"]["name"] = clusterName + "-secret-manager-binding-argocd"
+        r["roleRef"]["name"] = clusterName + "-secret-manager"
 
 
   set_values(ctx.resource_list["items"])
