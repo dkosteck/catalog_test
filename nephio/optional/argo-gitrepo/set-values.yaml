@@ -15,14 +15,17 @@ source: |-
       if krmfn.match_gvk(r, "v1", "ConfigMap") and krmfn.match_name(r, "kptfile.kpt.dev"):
         clusterName = r["data"]["name"]
         print("cm")
+        print(clusterName)
     # if a WorkloadCluster exists, and was injected, then use that for the name
     for r in resources:
       if krmfn.match_gvk(r, "infra.nephio.org/v1alpha1", "WorkloadCluster") and "annotations" in r["metadata"] and "kpt.dev/injected-resource" in r["metadata"]["annotations"]:
         clusterName = r["spec"]["clusterName"]
         print("workload")
+        print(clusterName)
     for r in resources:
       if krmfn.match_gvk(r, "v1", "ConfigMap") and "template.yaml" in r["data"]:
         print("repo-template")
+        print(clusterName)
         template_string = r.get("data", {}).get("template.yaml")
         decoded_secret = yaml.loads(template_string)
         if "labels" in decoded_secret["metadata"] and "argocd.argoproj.io/secret-type" in decoded_secret["metadata"]["labels"]:
@@ -37,6 +40,7 @@ source: |-
     for r in resources:
       if krmfn.match_gvk(r, "argoproj.io/v1alpha1", "Application"):
         print("app")
+        print(clusterName)
         r["metadata"]["name"] = clusterName
         r["spec"]["source"]["repoURL"] = "http://172.18.0.200:3000/nephio/" + clusterName + ".git"
         r["spec"]["destination"]["name"] = "in-cluster"
@@ -47,6 +51,7 @@ source: |-
     for r in resources:
       if krmfn.match_gvk(r, "batch/v1", "Job") and krmfn.match_name(r, "create-argocd-cluster-from-kubeconfig"):
         print("create-cluster")
+        print(clusterName)
         r["metadata"]["name"] = clusterName + "-create-argocd-cluster-from-kubeconfig"
         volumes = r["spec"]["template"]["spec"]["volumes"]
         for i, volume in enumerate(volumes):
@@ -57,6 +62,7 @@ source: |-
     for r in resources:
       if krmfn.match_gvk(r, "batch/v1", "Job") and krmfn.match_name(r, "create-argocd-repo-secret-from-porch"):
         print("create-repo")
+        print(clusterName)
         volumes = r["spec"]["template"]["spec"]["volumes"]
         r["metadata"]["name"] = clusterName + "-create-argocd-repo-secret-from-porch"
         for i, volume in enumerate(volumes):
@@ -67,6 +73,7 @@ source: |-
     for r in resources:
       if krmfn.match_gvk(r, "rbac.authorization.k8s.io/v1", "Role") and krmfn.match_name(r, "source-secret-reader-role"):
         print("source-rbac")
+        print(clusterName)
         r["metadata"]["name"] = clusterName + "-source-secret-reader-role"
         rules = r["rules"]
         for i, rule in enumerate(rules):
@@ -75,6 +82,7 @@ source: |-
     for r in resources:
       if krmfn.match_gvk(r, "rbac.authorization.k8s.io/v1", "RoleBinding") and krmfn.match_name(r, "source-secret-reader-binding"):
         print("source-binding")
+        print(clusterName)
         r["metadata"]["name"] = clusterName + "-source-secret-reader-binding"
         r["roleRef"]["name"] = clusterName + "-source-secret-reader-role"
 
