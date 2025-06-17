@@ -49,7 +49,7 @@ source: |-
           if env["name"] == "DESTINATION_NAME":
             r["spec"]["source"]["plugin"]["env"][i]["value"] = clusterName
     for r in resources:
-      if krmfn.match_gvk(r, "batch/v1", "Job") and krmfn.match_name(r, "create-argocd-cluster-from-kubeconfig"):
+      if krmfn.match_gvk(r, "batch/v1", "Job") and "create-argocd-cluster-from-kubeconfig" in r["metadata"]["name"]:
         print("create-cluster")
         print(clusterName)
         r["metadata"]["name"] = clusterName + "-create-argocd-cluster-from-kubeconfig"
@@ -60,7 +60,7 @@ source: |-
           elif volume["name"] == "template-vol":
             r["spec"]["template"]["spec"]["volumes"][i]["configMap"]["name"] = clusterName + "-cluster"
     for r in resources:
-      if krmfn.match_gvk(r, "batch/v1", "Job") and krmfn.match_name(r, "create-argocd-repo-secret-from-porch"):
+      if krmfn.match_gvk(r, "batch/v1", "Job") and "create-argocd-repo-secret-from-porch" in r["metadata"]["name"]:
         print("create-repo")
         print(clusterName)
         volumes = r["spec"]["template"]["spec"]["volumes"]
@@ -71,7 +71,7 @@ source: |-
           elif volume["name"] == "template-vol":
             r["spec"]["template"]["spec"]["volumes"][i]["configMap"]["name"] = clusterName + "-repo"
     for r in resources:
-      if krmfn.match_gvk(r, "rbac.authorization.k8s.io/v1", "Role") and krmfn.match_name(r, "source-secret-reader-role"):
+      if krmfn.match_gvk(r, "rbac.authorization.k8s.io/v1", "Role") and "source-secret-reader-role" in r["metadata"]["name"]:
         print("source-rbac")
         print(clusterName)
         r["metadata"]["name"] = clusterName + "-source-secret-reader-role"
@@ -80,7 +80,7 @@ source: |-
           if "secrets" in rule["resources"]:
             r["rules"][i]["resourceNames"] = [clusterName + "-kubeconfig", clusterName + "-access-token-porch"]
     for r in resources:
-      if krmfn.match_gvk(r, "rbac.authorization.k8s.io/v1", "RoleBinding") and krmfn.match_name(r, "source-secret-reader-binding"):
+      if krmfn.match_gvk(r, "rbac.authorization.k8s.io/v1", "RoleBinding") and "source-secret-reader-binding" in r["metadata"]["name"]:
         print("source-binding")
         print(clusterName)
         r["metadata"]["name"] = clusterName + "-source-secret-reader-binding"
