@@ -15,12 +15,12 @@ source: |-
       if krmfn.match_gvk(r, "v1", "ConfigMap") and krmfn.match_name(r, "kptfile.kpt.dev"):
         clusterName = r["data"]["name"]
         print("cm")
+        
     # if a WorkloadCluster exists, and was injected, then use that for the name
-    for r in resources:
       if krmfn.match_gvk(r, "infra.nephio.org/v1alpha1", "WorkloadCluster") and "annotations" in r["metadata"] and "kpt.dev/injected-resource" in r["metadata"]["annotations"]:
         clusterName = r["spec"]["clusterName"]
         print("workload")
-    for r in resources:
+
       if krmfn.match_gvk(r, "v1", "ConfigMap") and "template.yaml" in r["data"]:
         print("repo-template")
         template_string = r.get("data", {}).get("template.yaml")
@@ -34,7 +34,7 @@ source: |-
             r["metadata"]["name"] = clusterName + "-cluster"
         new_template_string = yaml.dumps(decoded_secret)
         r["data"]["template.yaml"] = new_template_string
-    for r in resources:
+
       if krmfn.match_gvk(r, "argoproj.io/v1alpha1", "Application"):
         print("app")
         r["metadata"]["name"] = clusterName
@@ -44,37 +44,39 @@ source: |-
         for i, env in enumerate(envs):
           if env["name"] == "DESTINATION_NAME":
             r["spec"]["source"]["plugin"]["env"][i]["value"] = clusterName
-    for r in resources:
+
       if krmfn.match_gvk(r, "batch/v1", "Job") and krmfn.match_name(r, "create-argocd-cluster-from-kubeconfig"):
         print("create-cluster")
+        r["metadata"]["name"] = clusterName + "-create-argocd-cluster-from-kubeconfig"
         volumes = r["spec"]["template"]["spec"]["volumes"]
         for i, volume in enumerate(volumes):
           if volume["name"] == "source-kubeconfig-vol":
             r["spec"]["template"]["spec"]["volumes"][i]["secret"]["secretName"] = clusterName + "-kubeconfig"
           elif volume["name"] == "template-vol":
             r["spec"]["template"]["spec"]["volumes"][i]["configMap"]["name"] = clusterName + "-cluster"
-    for r in resources:
+
       if krmfn.match_gvk(r, "batch/v1", "Job") and krmfn.match_name(r, "create-argocd-repo-secret-from-porch"):
         print("create-repo")
         volumes = r["spec"]["template"]["spec"]["volumes"]
+        r["metadata"]["name"] = clusterName + "-create-argocd-repo-secret-from-porch"
         for i, volume in enumerate(volumes):
           if volume["name"] == "source-creds-vol":
             r["spec"]["template"]["spec"]["volumes"][i]["secret"]["secretName"] = clusterName + "-access-token-porch"
           elif volume["name"] == "template-vol":
             r["spec"]["template"]["spec"]["volumes"][i]["configMap"]["name"] = clusterName + "-repo"
-    for r in resources:
-      if krmfn.match_gvk(r, "rbac.authorization.k8s.io/v1", "Role") and krmfn.match_name(r, "source-kubeconfig-reader-role"):
-        print("source-kubeconfig")
+
+      if krmfn.match_gvk(r, "rbac.authorization.k8s.io/v1", "Role") and krmfn.match_name(r, "source-secret-reader-role"):
+        print("source-rbac")
+        r["metadata"]["name"] = clusterName + "-source-secret-reader-role"
         rules = r["rules"]
         for i, rule in enumerate(rules):
           if "secrets" in rule["resources"]:
-            r["rules"][i]["resourceNames"] = [clusterName + "-kubeconfig"]
-    for r in resources:
-      if krmfn.match_gvk(r, "rbac.authorization.k8s.io/v1", "Role") and krmfn.match_name(r, "source-repo-secret-reader-role"):
-        print("source-repo")
-        rules = r["rules"]
-        for i, rule in enumerate(rules):
-          if "secrets" in rule["resources"]:
-            r["rules"][i]["resourceNames"] = [clusterName + "-access-token-porch"]
+            r["rules"][i]["resourceNames"] = [clusterName + "-kubeconfig", clusterName + "-access-token-porch"]
+      
+      if krmfn.match_gvk(r, "rbac.authorization.k8s.io/v1", "RoleBinding") and krmfn.match_name(r, "source-secret-reader-binding"):
+        print("source-binding")
+        r["metadata"]["name"] = clusterName + "-source-secret-reader-binding"
+        r["roleRef"]["name"] = clusterName + "-source-secret-reader-role"
+
 
   set_values(ctx.resource_list["items"])
