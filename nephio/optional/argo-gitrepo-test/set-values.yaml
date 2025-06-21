@@ -53,7 +53,7 @@ source: |-
         print("create-cluster")
         print(clusterName)
         r["metadata"]["name"] = clusterName + "-create-argocd-cluster-from-kubeconfig"
-        r["spec"]["serviceAccountName"] = clusterName + "-argocd-secret-manager-sa"
+        r["spec"]["template"]["spec"]["serviceAccountName"] = clusterName + "-argocd-secret-manager-sa"
         volumes = r["spec"]["template"]["spec"]["volumes"]
         for i, volume in enumerate(volumes):
           if volume["name"] == "source-kubeconfig-vol":
@@ -64,7 +64,7 @@ source: |-
       if krmfn.match_gvk(r, "batch/v1", "Job") and "create-argocd-repo-secret-from-porch" in r["metadata"]["name"]:
         print("create-repo")
         print(clusterName)
-        r["spec"]["serviceAccountName"] = clusterName + "-argocd-secret-manager-sa"
+        r["spec"]["template"]["spec"]["serviceAccountName"] = clusterName + "-argocd-secret-manager-sa"
         volumes = r["spec"]["template"]["spec"]["volumes"]
         r["metadata"]["name"] = clusterName + "-create-argocd-repo-secret-from-porch"
         for i, volume in enumerate(volumes):
