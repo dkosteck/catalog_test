@@ -88,7 +88,7 @@ source: |-
         r["metadata"]["name"] = clusterName + "-secret-manager-binding-default"
         r["roleRef"]["name"] = clusterName + "-secret-manager"
         subjects = r["subjects"]
-        for i, subject in enumerate(subjects)
+        for i, subject in enumerate(subjects):
           if subjet["kind"] == ServiceAccount:
             r["subjects"]["name"] = clusterName + "-argocd-secret-manager-sa"
     for r in resources:
@@ -98,7 +98,7 @@ source: |-
         r["metadata"]["name"] = clusterName + "-secret-manager-binding-argocd"
         r["roleRef"]["name"] = clusterName + "-secret-manager"
         subjects = r["subjects"]
-        for i, subject in enumerate(subjects)
+        for i, subject in enumerate(subjects):
           if subjet["kind"] == ServiceAccount:
             r["subjects"]["name"] = clusterName + "-argocd-secret-manager-sa"
     for r in resources:
