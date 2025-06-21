@@ -90,7 +90,7 @@ source: |-
         subjects = r["subjects"]
         for i, subject in enumerate(subjects):
           if subject["kind"] == "ServiceAccount":
-            r["subjects"]["name"] = clusterName + "-argocd-secret-manager-sa"
+            r["subjects"][i]["name"] = clusterName + "-argocd-secret-manager-sa"
     for r in resources:
       if krmfn.match_gvk(r, "rbac.authorization.k8s.io/v1", "RoleBinding") and "secret-manager-binding-argocd" in r["metadata"]["name"]:
         print("argo-binding")
@@ -100,7 +100,7 @@ source: |-
         subjects = r["subjects"]
         for i, subject in enumerate(subjects):
           if subject["kind"] == "ServiceAccount":
-            r["subjects"]["name"] = clusterName + "-argocd-secret-manager-sa"
+            r["subjects"][i]["name"] = clusterName + "-argocd-secret-manager-sa"
     for r in resources:
       if krmfn.match_gvk(r, "v1", "ServiceAccount") and "argocd-secret-manager-sa" in r["metadata"]["name"]:
         print("service-account")
