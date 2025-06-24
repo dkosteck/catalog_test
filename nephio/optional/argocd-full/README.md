@@ -1,21 +1,21 @@
-# core-components-kustomize
+# argocd-full
 
 ## Description
-sample description
+kpt package for deploying argocd-full
 
 ## Usage
 
 ### Fetch the package
-`kpt pkg get REPO_URI[.git]/PKG_PATH[@VERSION] core-components-kustomize`
+`kpt pkg get REPO_URI[.git]/PKG_PATH[@VERSION] argocd-full`
 Details: https://kpt.dev/reference/cli/pkg/get/
 
 ### View package content
-`kpt pkg tree core-components-kustomize`
+`kpt pkg tree argocd-full`
 Details: https://kpt.dev/reference/cli/pkg/tree/
 
 ### Apply the package
 ```
-kpt live init core-components-kustomize
-kpt live apply core-components-kustomize --reconcile-timeout=2m --output=table
+kpt live init argocd-full
+kpt live apply argocd-full --reconcile-timeout=2m --output=table
 ```
 Details: https://kpt.dev/reference/cli/live/
